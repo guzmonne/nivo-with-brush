@@ -1,9 +1,4 @@
-import React, { Component } from 'react';
-
-class App extends Component {
-  render() {
-    return <div className="App" />;
-  }
-}
+import './App.css';
+import App from './App.js';
 
 export default App;
