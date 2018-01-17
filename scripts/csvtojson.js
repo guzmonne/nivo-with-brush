@@ -19,10 +19,7 @@ csv()
   .on('json', json => {
     x = json.Date;
     y = parseFloat(json.Close, 10);
-    result.data.push({
-      x,
-      y
-    });
+    result.data = [{ x, y }].concat(result.data);
   })
   .on('done', error => {
     result.data = result.data.slice(0, -1);
