@@ -1,15 +1,29 @@
 import React from 'react';
 import { ResponsiveLine } from '@nivo/line';
 import { ILineChart } from '../types.js';
-import { MARGIN } from '../constants.js';
+import { MARGIN, MAX_BRUSH_ITEMS } from '../constants.js';
 
 class BrushChart extends React.Component {
   render() {
     var { data, margin } = this.props;
 
+    var brushData = data.map(points => {
+      if (points.data.length < MAX_BRUSH_ITEMS) return points;
+
+      var every = Math.ceil(points.data.length / MAX_BRUSH_ITEMS);
+
+      var result = Object.assign({}, points, {
+        data: points.data.filter((_, i) => i % every === 0)
+      });
+
+      console.log(every, points.data.length, result.data.length);
+
+      return result;
+    });
+
     return (
       <ResponsiveLine
-        data={data}
+        data={brushData}
         margin={Object.assign({}, MARGIN, margin, { top: 10, bottom: 10 })}
         colors={['hsl(36, 100%, 50%)', 'hsl(217, 100%, 45%)']}
         colorBy={'id'}

@@ -17,3 +17,5 @@ export var TICK_WIDTH = 16;
 export var MAX_ITEMS = 100;
 // Valor de offset de prueba
 export var INDEX_OFFSET = 850;
+// Máximo valor de elementos en el brush
+export var MAX_BRUSH_ITEMS = 500;
