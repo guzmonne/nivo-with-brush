@@ -2,7 +2,7 @@ import React from 'react';
 import T from 'prop-types';
 import ResponsiveWrapper from '../ResponsiveWrapper/';
 import { IMargin } from '../types.js';
-import { MARGIN, PADDING, MAX_ITEMS } from '../constants.js';
+import { MARGIN, PADDING, MAX_ITEMS, INDEX_OFFSET } from '../constants.js';
 import { getXScale } from './compute.js';
 
 var Brush = ({ margin, data }) => {
@@ -21,8 +21,8 @@ var Brush = ({ margin, data }) => {
         var min;
 
         data.forEach(points => {
-          var testMax = scale(points.data[MAX_ITEMS - 1].x);
-          var testMin = scale(points.data[0].x);
+          var testMax = scale(points.data[INDEX_OFFSET + MAX_ITEMS].x);
+          var testMin = scale(points.data[INDEX_OFFSET].x);
           if (max < testMax || max === undefined) max = testMax;
           if (min > testMin || min === undefined) min = testMin;
         });

@@ -8,7 +8,8 @@ import {
   OFFSET,
   FONT_SIZE,
   MAX_ITEMS,
-  TICK_WIDTH
+  TICK_WIDTH,
+  INDEX_OFFSET
 } from '../constants.js';
 
 class MainChart extends React.Component {
@@ -19,7 +20,7 @@ class MainChart extends React.Component {
 
     var brushedData = data.map(d =>
       Object.assign({}, d, {
-        data: d.data.slice(0, MAX_ITEMS)
+        data: d.data.slice(INDEX_OFFSET, INDEX_OFFSET + MAX_ITEMS)
       })
     );
 
@@ -67,9 +68,9 @@ class MainChart extends React.Component {
                 legendOffset: -40,
                 legendPosition: 'center'
               }}
-              dotSize={10}
+              dotSize={5}
               dotColor="inherit:darker(0.3)"
-              dotBorderWidth={2}
+              dotBorderWidth={0.5}
               dotBorderColor="#ffffff"
               enableDotLabel={enableDotLabel}
               dotLabel="y"
