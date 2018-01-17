@@ -14,4 +14,4 @@ export var PADDING = 5;
 // Ancho de un tick con la fecha
 export var TICK_WIDTH = 55;
 // Maxima cantidad de elementos por gráfica
-export var MAX_ITEMS = 50;
+export var MAX_ITEMS = 200;

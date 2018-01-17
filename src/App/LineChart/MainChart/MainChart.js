@@ -37,8 +37,6 @@ class MainChart extends React.Component {
           var gridWidth = Math.floor(chartWidth / dataPoints.length);
           var tickDistance = Math.floor(TICK_WIDTH / gridWidth);
 
-          console.log(chartWidth, gridWidth, dataPoints.length, tickDistance);
-
           return (
             <Line
               width={width}

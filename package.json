@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@nivo/line": "^0.33.0",
+    "d3": "^4.12.2",
     "lodash": "^4.17.4",
     "lodash-es": "^4.17.4",
     "prop-types": "^15.6.0",
