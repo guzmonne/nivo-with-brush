@@ -10,11 +10,10 @@
 .LineChart > .BrushChart {
   height: 20%;
   position: relative;
+  padding: 0.5em;
 }
 
 .LineChart > .BrushChart > .Brush {
-  position: absolute;
   width: 100%;
   height: 100%;
-  top: 0;
 }

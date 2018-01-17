@@ -43,7 +43,10 @@ export default class ResponsiveWrapper extends Component {
           <div
             className={className}
             ref={measureRef}
-            style={{ width: '100%', height: '100%' }}
+            style={{
+              width: '100%',
+              height: '100%'
+            }}
           >
             {shouldRender && this.props.children({ width, height })}
           </div>

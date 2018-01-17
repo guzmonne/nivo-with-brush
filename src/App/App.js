@@ -12,7 +12,12 @@ class App extends Component {
           data={stocks}
           tickEvery={3}
           tickRotation={45}
-          margin={{ bottom: 80 }}
+          margin={{
+            top: 10,
+            right: 60,
+            bottom: 90,
+            left: 60
+          }}
           xLegend="stock"
           yLegend="close"
         />

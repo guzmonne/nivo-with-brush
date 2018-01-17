@@ -5,6 +5,7 @@ import MainChart from './MainChart/';
 import BrushChart from './BrushChart/';
 import Brush from './Brush/';
 import { ILineChart } from './types.js';
+import { MARGIN } from './constants.js';
 
 var LineChart = props => {
   return (
@@ -12,7 +13,13 @@ var LineChart = props => {
       <div className="MainChart">
         <MainChart {...props} />
       </div>
-      <div className="BrushChart">
+      <div
+        className="BrushChart"
+        style={{
+          paddingLeft: `${props.margin.left}px`,
+          paddingRight: `${props.margin.right}px`
+        }}
+      >
         <BrushChart {...props} />
         <Brush {...props} />
       </div>
@@ -23,5 +30,9 @@ var LineChart = props => {
 LineChart.propTypes = Object.assign({}, ILineChart, {
   tickEvery: T.number
 });
+
+LineChart.defaultProps = {
+  margin: MARGIN
+};
 
 export default LineChart;
