@@ -1,4 +1,5 @@
 import React from 'react';
+import T from 'prop-types';
 import ResponsiveWrapper from '../ResponsiveWrapper/';
 import { IMargin } from '../types.js';
 import { MARGIN, PADDING } from '../constants.js';
@@ -24,7 +25,7 @@ var Brush = props => {
 };
 
 Brush.propTypes = {
-  margin: IMargin
+  margin: T.shape(IMargin)
 };
 
 export default Brush;

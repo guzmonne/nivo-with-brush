@@ -32,6 +32,7 @@ class BrushChart extends React.Component {
           tickRotation: 0,
           tickValues: []
         }}
+        lineWidth={1}
         animate={true}
         motionStiffness={90}
         motionDamping={15}

@@ -11,3 +11,7 @@ export var OFFSET = 36;
 export var FONT_SIZE = 10;
 // Tamaño de padding del brush.
 export var PADDING = 5;
+// Ancho de un tick con la fecha
+export var TICK_WIDTH = 55;
+// Maxima cantidad de elementos por gráfica
+export var MAX_ITEMS = 50;
