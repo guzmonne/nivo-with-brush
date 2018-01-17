@@ -16,8 +16,6 @@ class BrushChart extends React.Component {
         data: points.data.filter((_, i) => i % every === 0)
       });
 
-      console.log(every, points.data.length, result.data.length);
-
       return result;
     });
 
