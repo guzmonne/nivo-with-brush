@@ -9,3 +9,5 @@ export var MARGIN = {
 export var OFFSET = 36;
 // Tamaño de letra de la legenda.
 export var FONT_SIZE = 10;
+// Tamaño de padding del brush.
+export var PADDING = 5;

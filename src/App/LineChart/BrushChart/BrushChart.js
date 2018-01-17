@@ -10,7 +10,7 @@ class BrushChart extends React.Component {
     return (
       <ResponsiveLine
         data={data}
-        margin={Object.assign({}, MARGIN, margin)}
+        margin={Object.assign({}, MARGIN, margin, { top: 10, bottom: 10 })}
         colors={['hsl(36, 100%, 50%)', 'hsl(217, 100%, 45%)']}
         colorBy={'id'}
         enableGridX={false}

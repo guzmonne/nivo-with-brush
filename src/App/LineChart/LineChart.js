@@ -4,6 +4,7 @@ import T from 'prop-types';
 import union from 'lodash/union.js';
 import MainChart from './MainChart/';
 import BrushChart from './BrushChart/';
+import Brush from './Brush/';
 import { ILineChart } from './types.js';
 
 var LineChart = props => {
@@ -11,9 +12,8 @@ var LineChart = props => {
 
   if (tickEvery > 0)
     rest.xAxisTickValues = props.data
-      .map(stock => stock.data)
+      .map(stock => stock.data.map(value => value.x))
       .reduce(union, [])
-      .map(value => value.x)
       .filter((_, i) => i % tickEvery === 0);
 
   return (
@@ -23,6 +23,7 @@ var LineChart = props => {
       </div>
       <div className="BrushChart">
         <BrushChart {...rest} />
+        <Brush {...rest} />
       </div>
     </div>
   );

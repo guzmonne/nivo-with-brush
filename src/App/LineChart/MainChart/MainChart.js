@@ -56,12 +56,12 @@ class MainChart extends React.Component {
         legends={[
           {
             anchor: 'bottom-right',
-            direction: 'column',
-            translateX: 100,
+            direction: 'row',
             itemWidth: 80,
             itemHeight: 20,
             symbolSize: 12,
-            symbolShape: 'circle'
+            symbolShape: 'circle',
+            translateY: 80
           }
         ]}
       />
