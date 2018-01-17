@@ -30,18 +30,16 @@ var Brush = ({ margin, data }) => {
         return (
           <svg width={width} height={height}>
             <rect
-              x={margin.left - PADDING}
+              x={margin.left + min - PADDING}
               y={margin.top - PADDING}
-              width={PADDING + min}
+              width={max - min}
               height={height + 2 * PADDING - margin.top - margin.bottom}
-              style={{ fill: 'black', opacity: 0.3 }}
-            />
-            <rect
-              x={margin.left - PADDING + max}
-              y={margin.top - PADDING}
-              width={width - max + 2 * PADDING - margin.right - margin.left}
-              height={height + 2 * PADDING - margin.top - margin.bottom}
-              style={{ fill: 'black', opacity: 0.3 }}
+              style={{
+                fill: 'black',
+                opacity: 0.3,
+                stroke: 1,
+                strokeFill: '#FFF'
+              }}
             />
           </svg>
         );
