@@ -14,7 +14,7 @@ import {
 
 class MainChart extends React.Component {
   render() {
-    var { data, enableDotLabel, tickRotation, xLegend, yLegend } = this.props;
+    var { data, enableDotLabel } = this.props;
 
     var margin = Object.assign({}, MARGIN, this.props.margin);
 
@@ -52,8 +52,8 @@ class MainChart extends React.Component {
                 orient: 'bottom',
                 tickSize: 5,
                 tickPadding: 5,
-                tickRotation: tickRotation,
-                legend: xLegend,
+                tickRotation: 45,
+                legend: 'date',
                 legendOffset:
                   margin && margin.bottom ? margin.bottom - FONT_SIZE : OFFSET,
                 legendPosition: 'center',
@@ -64,7 +64,7 @@ class MainChart extends React.Component {
                 tickSize: 5,
                 tickPadding: 5,
                 tickRotation: 0,
-                legend: yLegend,
+                legend: 'close',
                 legendOffset: -40,
                 legendPosition: 'center'
               }}

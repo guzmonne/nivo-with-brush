@@ -1,8 +1,8 @@
 // Valor de margenes de grafica por defecto.
 export var MARGIN = {
-  top: 50,
+  top: 10,
   right: 60,
-  bottom: 50,
+  bottom: 80,
   left: 60
 };
 // Offset de legenda por defecto.
