@@ -3,7 +3,6 @@ import React from 'react';
 import T from 'prop-types';
 import MainChart from './MainChart/';
 import BrushChart from './BrushChart/';
-import Brush from './Brush/';
 import { ILineChart } from './types.js';
 import { MARGIN } from './constants.js';
 
@@ -21,7 +20,6 @@ var LineChart = props => {
         }}
       >
         <BrushChart {...props} />
-        <Brush {...props} />
       </div>
     </div>
   );

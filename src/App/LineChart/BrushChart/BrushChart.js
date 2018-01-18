@@ -1,11 +1,10 @@
 import React from 'react';
-import { ResponsiveLine } from '@nivo/line';
-import { ILineChart } from '../types.js';
-import { MARGIN, MAX_BRUSH_ITEMS } from '../constants.js';
+import ResponsiveLine from './ResponsiveLine.js';
+import { MAX_BRUSH_ITEMS } from '../constants.js';
 
 class BrushChart extends React.Component {
   render() {
-    var { data, margin } = this.props;
+    var { data } = this.props;
 
     var brushData = data.map(points => {
       if (points.data.length < MAX_BRUSH_ITEMS) return points;
@@ -57,7 +56,5 @@ class BrushChart extends React.Component {
     );
   }
 }
-
-BrushChart.propTypes = ILineChart;
 
 export default BrushChart;

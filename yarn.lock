@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@nivo/core@0.33.0":
+"@nivo/core@0.33.0", "@nivo/core@^0.33.0":
   version "0.33.0"
   resolved "https://registry.yarnpkg.com/@nivo/core/-/core-0.33.0.tgz#d4797275f8bf28f8e9fcc6f720d78cc354561050"
   dependencies:
@@ -17,7 +17,7 @@
     react-motion "^0.5.2"
     recompose "^0.26.0"
 
-"@nivo/legends@0.33.0":
+"@nivo/legends@0.33.0", "@nivo/legends@^0.33.0":
   version "0.33.0"
   resolved "https://registry.yarnpkg.com/@nivo/legends/-/legends-0.33.0.tgz#8eb5a228b2cfb81dfc464ddb854c266768f039c2"
   dependencies:
