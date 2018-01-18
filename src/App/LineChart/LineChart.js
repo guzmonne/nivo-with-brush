@@ -1,19 +1,17 @@
 import './LineChart.css';
 import React from 'react';
 import T from 'prop-types';
-import uniq from 'lodash/uniq.js';
 import { Line } from '@nivo/line';
 import ResponsiveWrapper from './ResponsiveWrapper/';
 import BrushChart from './BrushChart/';
 import { ILineChart } from './types.js';
+import uniq from 'lodash/uniq.js';
 import {
   MARGIN,
-  OFFSET,
-  FONT_SIZE,
   MAX_ITEMS,
-  TICK_WIDTH,
   INDEX_OFFSET,
-  MAX_BRUSH_ITEMS
+  MAX_BRUSH_ITEMS,
+  TICK_WIDTH
 } from './constants.js';
 
 var brushChartProps = {
@@ -51,6 +49,21 @@ var brushChartProps = {
 };
 
 class LineChart extends React.Component {
+  calculateTickValues = (data, innerWidth) => {
+    var xValues = uniq(
+      data
+        .map(stock => stock.data.map(value => value.x))
+        .reduce((acc, array) => acc.concat(array), [])
+    );
+
+    var gridWidth = Math.ceil(innerWidth / xValues.length);
+    var tickDistance = Math.floor(TICK_WIDTH / gridWidth);
+
+    var result = xValues.filter((_, i) => i % tickDistance === 0);
+
+    return result;
+  };
+
   brushData = data => {
     return data.map(points => {
       if (points.data.length < MAX_BRUSH_ITEMS) return points;
@@ -65,7 +78,7 @@ class LineChart extends React.Component {
     });
   };
 
-  brush = data => {
+  visible = data => {
     return data.map(d =>
       Object.assign({}, d, {
         data: d.data.slice(INDEX_OFFSET, INDEX_OFFSET + MAX_ITEMS)
@@ -74,9 +87,9 @@ class LineChart extends React.Component {
   };
 
   render() {
-    var { data } = this.props;
+    var { data, axisBottom, withInnerDimensions, ...rest } = this.props;
 
-    var brushedData = this.brush(data);
+    var visibleData = this.visible(data);
 
     var margin = Object.assign({}, MARGIN, this.props.margin);
 
@@ -85,72 +98,22 @@ class LineChart extends React.Component {
         <div className="MainChart">
           <ResponsiveWrapper>
             {({ width, height }) => {
-              var chartWidth = width - margin.left - margin.right;
-
-              var dataPoints = uniq(
-                brushedData
-                  .map(stock => stock.data.map(value => value.x))
-                  .reduce((acc, array) => acc.concat(array), [])
-              );
-
-              var gridWidth = Math.floor(chartWidth / dataPoints.length);
-              var tickDistance = Math.floor(TICK_WIDTH / gridWidth);
-
               return (
                 <Line
+                  {...rest}
                   width={width}
                   height={height}
-                  data={brushedData}
-                  colors={['hsl(36, 100%, 50%)', 'hsl(217, 100%, 45%)']}
-                  colorBy={'id'}
+                  data={visibleData}
                   margin={margin}
-                  minY="auto"
-                  stacked={false}
                   axisBottom={{
-                    orient: 'bottom',
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 45,
-                    legend: 'date',
-                    legendOffset:
-                      margin && margin.bottom
-                        ? margin.bottom - FONT_SIZE
-                        : OFFSET,
-                    legendPosition: 'center',
-                    tickValues: dataPoints.filter(
-                      (_, i) => i % tickDistance === 0
-                    )
-                  }}
-                  axisLeft={{
-                    orient: 'left',
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'close',
-                    legendOffset: -40,
-                    legendPosition: 'center'
-                  }}
-                  dotSize={5}
-                  dotColor="inherit:darker(0.3)"
-                  dotBorderWidth={0.5}
-                  dotBorderColor="#ffffff"
-                  enableDotLabel={false}
-                  dotLabel="y"
-                  dotLabelYOffset={-12}
-                  animate={true}
-                  motionStiffness={90}
-                  motionDamping={15}
-                  legends={[
-                    {
-                      anchor: 'bottom-right',
-                      direction: 'row',
-                      itemWidth: 80,
-                      itemHeight: 20,
-                      symbolSize: 12,
-                      symbolShape: 'circle',
-                      translateY: 80
+                    ...axisBottom,
+                    ...{
+                      tickValues: this.calculateTickValues(
+                        visibleData,
+                        width - margin.left - margin.right
+                      )
                     }
-                  ]}
+                  }}
                 />
               );
             }}

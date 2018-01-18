@@ -18,11 +18,7 @@ class MainChart extends React.Component {
 
     var margin = Object.assign({}, MARGIN, this.props.margin);
 
-    var brushedData = data.map(d =>
-      Object.assign({}, d, {
-        data: d.data.slice(INDEX_OFFSET, INDEX_OFFSET + MAX_ITEMS)
-      })
-    );
+    var brushedData = ;
 
     return (
       <ResponsiveWrapper>
