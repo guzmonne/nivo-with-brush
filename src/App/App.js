@@ -53,6 +53,28 @@ class App extends Component {
               translateY: 80
             }
           ]}
+          margin={{
+            top: 10,
+            right: 60,
+            bottom: 80,
+            left: 60
+          }}
+          brushOverrides={{
+            axisLeft: {
+              tickValues: []
+            },
+            axisBottom: {
+              tickValues: []
+            },
+            enableGridX: false,
+            enableGridY: false,
+            margin: {
+              top: 10,
+              right: 60,
+              bottom: 10,
+              left: 60
+            }
+          }}
         />
       </div>
     );
