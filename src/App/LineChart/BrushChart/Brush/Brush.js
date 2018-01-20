@@ -1,5 +1,6 @@
 import React from 'react';
 import { PADDING } from '../../constants.js';
+import { scaleQuantize } from 'd3-scale';
 
 class Brush extends React.Component {
   state = {
@@ -75,7 +76,11 @@ class Brush extends React.Component {
       result.max = width;
     }
 
-    return this.setState(result);
+    return this.setState(result, () => {
+      if (typeof this.props.onBrush === 'function') {
+        this.props.onBrush(this.state.min, this.state.max);
+      }
+    });
   };
 
   handleOnMouseUp = e => {

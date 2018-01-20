@@ -73,7 +73,8 @@ class App extends Component {
               right: 60,
               bottom: 10,
               left: 60
-            }
+            },
+            dotSize: 0
           }}
         />
       </div>

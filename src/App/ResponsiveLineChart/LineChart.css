@@ -1,0 +1,12 @@
+.LineChart {
+  height: 100%;
+  width: 100%;
+}
+
+.LineChart > .Main {
+  height: 80%;
+}
+
+.LineChart > .Brush {
+  height: 20%;
+}

@@ -1,3 +1,3 @@
-import BrushChart from './BrushChart.js';
+import ResponsiveBrushChart from './ResponsiveBrushChart.js';
 
-export default BrushChart;
+export default ResponsiveBrushChart;

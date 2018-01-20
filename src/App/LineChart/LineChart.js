@@ -6,15 +6,18 @@ import ResponsiveWrapper from './ResponsiveWrapper/';
 import BrushChart from './BrushChart/';
 import { ILineChart } from './types.js';
 import uniq from 'lodash/uniq.js';
-import {
-  MARGIN,
-  MAX_ITEMS,
-  INDEX_OFFSET,
-  MAX_BRUSH_ITEMS,
-  TICK_WIDTH
-} from './constants.js';
+import { MARGIN, MAX_ITEMS, INDEX_OFFSET, TICK_WIDTH } from './constants.js';
 
 class LineChart extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      min: INDEX_OFFSET,
+      max: INDEX_OFFSET + MAX_ITEMS
+    };
+  }
+
   calculateTickValues = (data, innerWidth) => {
     var xValues = uniq(
       data
@@ -30,24 +33,16 @@ class LineChart extends React.Component {
     return result;
   };
 
-  brushData = data => {
-    return data.map(points => {
-      if (points.data.length < MAX_BRUSH_ITEMS) return points;
-
-      var every = Math.ceil(points.data.length / MAX_BRUSH_ITEMS);
-
-      var result = Object.assign({}, points, {
-        data: points.data.filter((_, i) => i % every === 0)
-      });
-
-      return result;
-    });
+  updateVisibleSelection = visibleData => {
+    //console.log('something');
+    //this.setState({ visibleData });
   };
 
   visible = data => {
+    var { min, max } = this.state;
     return data.map(d =>
       Object.assign({}, d, {
-        data: d.data.slice(INDEX_OFFSET, INDEX_OFFSET + MAX_ITEMS)
+        data: d.data.slice(min, max)
       })
     );
   };
@@ -95,8 +90,9 @@ class LineChart extends React.Component {
         </div>
         <div className="BrushChart">
           <BrushChart
-            data={this.brushData(data)}
+            data={data}
             margin={margin}
+            onBrush={this.updateVisibleSelection}
             {...brushProps}
           />
         </div>

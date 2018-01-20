@@ -1,5 +1,4 @@
 import React from 'react';
-import { ResponsiveWrapper } from '@nivo/core';
 import { sortBy } from 'lodash';
 import { area, line } from 'd3-shape';
 import compose from 'recompose/compose';
@@ -29,6 +28,7 @@ import Brush from './Brush/';
 const Line = ({
   // custom
   data,
+  onBrush,
 
   // lines and scales
   lines,
@@ -192,6 +192,7 @@ const Line = ({
             data={data}
             width={width}
             height={height}
+            onBrush={onBrush}
           />
         </SvgWrapper>
       )}
@@ -275,10 +276,4 @@ const enhance = compose(
 const EnhancedLine = enhance(Line);
 EnhancedLine.displayName = 'enhance(Line)';
 
-export default props => (
-  <ResponsiveWrapper>
-    {({ width, height }) => (
-      <EnhancedLine width={width} height={height} {...props} />
-    )}
-  </ResponsiveWrapper>
-);
+export default EnhancedLine;
