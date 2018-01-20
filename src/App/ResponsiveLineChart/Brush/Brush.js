@@ -1,24 +1,113 @@
 import React from 'react';
-import compose from 'recomp';
+import compose from 'recompose/compose';
+import pure from 'recompose/pure';
+import withStateHandlers from 'recompose/withStateHandlers';
+import withHandlers from 'recompose/withHandlers.js';
+import toClass from 'recompose/toClass.js';
 import { PADDING } from '../constants.js';
 import { scaleQuantize } from 'd3-scale';
 
 //     ref={c => (this.svg = c)}
 
-var Brush = ({ width, height }) => (
-  <svg width={width} height={height}>
-    <rect
-      x={0}
-      y={0}
+var Brush = ({ width, height, minEdge, maxEdge, onMouseDown, onMouseMove }) => {
+  return (
+    <svg
+      ref={c => (this.svg = c)}
       width={width}
       height={height}
-      style={{
-        opacity: 0.3,
-        fill: 'black'
-      }}
-    />
-  </svg>
+      onMouseMove={onMouseMove}
+    >
+      <rect
+        x={0}
+        y={0}
+        width={width}
+        height={height}
+        style={{
+          opacity: 0.2,
+          fill: 'red'
+        }}
+        onMouseDown={onMouseDown('new')}
+      />
+      <rect
+        x={minEdge}
+        y={0}
+        width={maxEdge - minEdge}
+        height={height}
+        style={{
+          opacity: 0.3,
+          fill: 'black'
+        }}
+        onMouseDown={onMouseDown('both')}
+      />
+    </svg>
+  );
+};
+
+var enhance = compose(
+  withStateHandlers(
+    ({ xScale }) => {
+      var range = xScale.range();
+
+      return {
+        minEdge: range[0],
+        maxEdge: range[1] / 2,
+        dragging: undefined,
+        difference: 0
+      };
+    },
+    {
+      setDifference: () => difference => ({ difference }),
+      setDragging: () => dragging => ({ dragging }),
+      setEdges: ({ minEdge, maxEdge }, { xScale }) => (
+        newMinEdge,
+        newMaxEdge
+      ) => {
+        var state = {
+          minEdge: newMinEdge >= 0 ? newMinEdge : minEdge,
+          maxEdge: newMaxEdge <= xScale.range()[1] ? newMinEdge : maxEdge
+        };
+
+        if (state.minEdge > state.maxEdge)
+          state = {
+            minEdge: state.maxEdge,
+            maxEdge: state.minEdge
+          };
+
+        return state;
+      }
+    }
+  ),
+  withHandlers({
+    cursorPoint: () => (svg, clientX, clientY) => {
+      var pt = svg.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      var result = pt.matrixTransform(svg.getScreenCTM().inverse());
+      console.log(result);
+      return result;
+    }
+  }),
+  withHandlers({
+    onMouseDown: ({ cursorPoint, setDragging, setEdges }) => side => e => {
+      var { x } = cursorPoint(this.svg, e.clientX, e.clientY);
+
+      setDragging(side === 'min' || side === 'max' ? side : x);
+
+      if (side === 'new') setEdges(x, x);
+    },
+    onMouseMove: ({ dragging }) => e => {
+      // Do nothing if not dragging.
+      if (dragging === undefined) return;
+    }
+  }),
+  toClass,
+  pure
 );
+
+var EnhancedBrush = enhance(Brush);
+EnhancedBrush.displayName = 'enhance(Brush)';
+
+export default EnhancedBrush;
 
 class BrushOld extends React.Component {
   state = {
@@ -166,5 +255,3 @@ class BrushOld extends React.Component {
     );
   }
 }
-
-export default Brush;
