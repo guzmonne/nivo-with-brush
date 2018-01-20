@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import LineChart from './LineChart/';
+import { ResponsiveLineChart as LineChart } from './ResponsiveLineChart/';
 import stocks from './stock.json';
 
 stocks.forEach(stock => (stock.data = stock.data.reverse()));
@@ -23,7 +23,7 @@ class App extends Component {
             legendOffset: -40,
             legendPosition: 'center'
           }}
-          dotSize={5}
+          dotSize={2}
           dotColor="inherit:darker(0.3)"
           dotBorderWidth={0.5}
           dotBorderColor="#ffffff"
