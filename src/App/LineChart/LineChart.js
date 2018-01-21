@@ -10,7 +10,7 @@ import withHandlers from 'recompose/withHandlers';
 import withStateHandlers from 'recompose/withStateHandlers';
 import withPropsOnChange from 'recompose/withPropsOnChange';
 import { scaleQuantize } from 'd3-scale';
-import { TICK_WIDTH } from './constants.js';
+import { TICK_WIDTH, DEBOUNCE, POINTS_PER_WIDTH } from './constants.js';
 
 var LineChart = ({
   axisBottom = {},
@@ -72,7 +72,7 @@ var enhance = compose(
       if (this.timeout) clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
         updateValidRange(min, max);
-      }, 1000);
+      }, DEBOUNCE);
     }
   }),
   withHandlers({
@@ -87,7 +87,7 @@ var enhance = compose(
     }
   }),
   withPropsOnChange(['innerWidth'], ({ innerWidth }) => ({
-    maxPoints: Math.round(innerWidth / 4)
+    maxPoints: Math.round(innerWidth / POINTS_PER_WIDTH)
   })),
   withPropsOnChange(['data', 'min', 'max'], ({ data, min, max }) => ({
     visibleData: data.map(d => ({

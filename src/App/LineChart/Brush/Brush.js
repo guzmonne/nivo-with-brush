@@ -49,7 +49,7 @@ var Brush = ({
           onMouseDown={onMouseDown('both')}
         />
         <rect
-          x={minEdge}
+          x={minEdge - PADDING}
           y={0}
           width={2 * PADDING}
           height={height}
@@ -61,7 +61,7 @@ var Brush = ({
           onMouseDown={onMouseDown('minEdge')}
         />
         <rect
-          x={maxEdge}
+          x={maxEdge + PADDING}
           y={0}
           width={2 * PADDING}
           height={height}
@@ -138,8 +138,8 @@ var enhance = compose(
       if (side === 'minEdge' || side === 'maxEdge') state.dragging = side;
 
       if (side === 'new') {
-        state.minEdge = x - PADDING;
-        state.maxEdge = x - PADDING;
+        state.minEdge = x;
+        state.maxEdge = x;
         state.dragging = 'minEdge';
       }
 
