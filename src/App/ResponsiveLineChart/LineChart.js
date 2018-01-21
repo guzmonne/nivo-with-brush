@@ -1,9 +1,9 @@
 import React from 'react';
 import uniq from 'lodash/uniq.js';
 import indexOf from 'lodash/indexOf.js';
-import throttle from 'lodash/throttle.js';
 import { Line } from '@nivo/line';
 import LineWithBrush from './LineWithBrush.js';
+import lifecycle from 'recompose/lifecycle.js';
 import compose from 'recompose/compose';
 import pure from 'recompose/pure';
 import withHandlers from 'recompose/withHandlers';
@@ -68,8 +68,12 @@ var enhance = compose(
       .range(xRange)
   })),
   withHandlers({
-    throttledUpdateValidRange: ({ updateValidRange }) =>
-      throttle(updateValidRange, 2000, { leading: false, trailing: true })
+    throttledUpdateValidRange: ({ updateValidRange }) => (min, max) => {
+      if (this.timeout) clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
+        updateValidRange(min, max);
+      }, 1000);
+    }
   }),
   withHandlers({
     onBrush: ({ throttledUpdateValidRange, invertScale, xRange, data }) => (
@@ -131,6 +135,11 @@ var enhance = compose(
     var result = xValues.filter((_, i) => i % tickDistance === 0);
 
     return { tickValues: result };
+  }),
+  lifecycle({
+    componentDidMount() {
+      if (this.timeout) clearTimeout(this.timeout);
+    }
   }),
   pure
 );
