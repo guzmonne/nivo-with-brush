@@ -9,6 +9,8 @@ class App extends Component {
     return (
       <div className="App">
         <LineChart
+          initialMin={0}
+          initialMax={50}
           data={stocks}
           colors={['hsl(36, 100%, 50%)', 'hsl(217, 100%, 45%)']}
           colorBy={'id'}

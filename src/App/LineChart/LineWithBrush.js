@@ -29,6 +29,8 @@ const Line = ({
   // custom
   data,
   onBrush,
+  initialMinEdge,
+  initialMaxEdge,
 
   // lines and scales
   lines,
@@ -193,6 +195,8 @@ const Line = ({
             width={width}
             height={height}
             onBrush={onBrush}
+            initialMinEdge={initialMinEdge}
+            initialMaxEdge={initialMaxEdge}
           />
         </SvgWrapper>
       )}

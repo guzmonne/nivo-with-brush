@@ -3,21 +3,19 @@ import uniq from 'lodash/uniq.js';
 import indexOf from 'lodash/indexOf.js';
 import { Line } from '@nivo/line';
 import LineWithBrush from './LineWithBrush.js';
-import lifecycle from 'recompose/lifecycle.js';
 import compose from 'recompose/compose';
 import pure from 'recompose/pure';
 import withHandlers from 'recompose/withHandlers';
 import withStateHandlers from 'recompose/withStateHandlers';
 import withPropsOnChange from 'recompose/withPropsOnChange';
-import { scaleQuantize } from 'd3-scale';
-import { TICK_WIDTH, DEBOUNCE, POINTS_PER_WIDTH } from './constants.js';
-import throttle from 'lodash/throttle.js';
+import { scaleQuantize, scalePoint } from 'd3-scale';
+import { TICK_WIDTH, POINTS_PER_WIDTH, PADDING } from './constants.js';
 
 var LineChart = ({
   axisBottom = {},
   brushData,
   brushOverrides,
-  drawData,
+  visibleData,
   height,
   onBrush,
   tickValues,
@@ -29,7 +27,7 @@ var LineChart = ({
       {...rest}
       width={width}
       height={Math.round(height * 0.8)}
-      data={drawData}
+      data={visibleData}
       axisBottom={{
         ...axisBottom,
         ...{ tickValues }
@@ -68,6 +66,17 @@ var enhance = compose(
       .domain([0, innerWidth])
       .range(xRange)
   })),
+  withPropsOnChange(
+    ['initialMin', 'initialMax'],
+    ({ initialMin, initialMax, invertScale, xRange }) => {
+      var result = {
+        initialMinEdge: invertScale.invertExtent(xRange[initialMin])[0],
+        initialMaxEdge: invertScale.invertExtent(xRange[initialMax])[1]
+      };
+
+      return result;
+    }
+  ),
   withHandlers({
     update: ({ updateValidRange }) => () => {
       updateValidRange(this.minEdge, this.maxEdge);
@@ -126,11 +135,6 @@ var enhance = compose(
     var result = xValues.filter((_, i) => i % tickDistance === 0);
 
     return { tickValues: result };
-  }),
-  lifecycle({
-    componentDidMount() {
-      if (this.timeout) clearTimeout(this.timeout);
-    }
   }),
   pure
 );

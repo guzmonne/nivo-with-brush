@@ -79,12 +79,12 @@ var Brush = ({
 
 var enhance = compose(
   withStateHandlers(
-    ({ xScale }) => {
+    ({ xScale, initialMinEdge, initialMaxEdge }) => {
       var range = xScale.range();
 
       return {
-        minEdge: range[0],
-        maxEdge: range[1],
+        minEdge: initialMinEdge || range[0],
+        maxEdge: initialMaxEdge || range[1],
         dragging: false,
         dragType: '',
         difference: 0

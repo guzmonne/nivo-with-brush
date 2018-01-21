@@ -9,4 +9,4 @@ export var PADDING = 25;
 // Tiempo de debounce para filtrar la canidad de elementos en la gráfica.
 export var DEBOUNCE = 100;
 // Cantidad de puntos por pixel permitidos en el ancho
-export var POINTS_PER_WIDTH = 5;
+export var POINTS_PER_WIDTH = 10;
