@@ -54,7 +54,7 @@ var Brush = ({
           width={2 * PADDING}
           height={height}
           style={{
-            opacity: 0,
+            opacity: 0.1,
             fill: 'black',
             cursor: 'ew-resize'
           }}
@@ -66,7 +66,7 @@ var Brush = ({
           width={2 * PADDING}
           height={height}
           style={{
-            opacity: 0,
+            opacity: 0.1,
             fill: 'black',
             cursor: 'ew-resize'
           }}
@@ -86,19 +86,29 @@ var enhance = compose(
         minEdge: range[0],
         maxEdge: range[1],
         dragging: false,
+        dragType: '',
         difference: 0
       };
     },
     {
       setState: (
-        { minEdge: _minEdge, maxEdge: _maxEdge, dragging },
+        { minEdge: _minEdge, maxEdge: _maxEdge, dragType: _dragType, dragging },
         { xScale, onBrush }
-      ) => ({ minEdge, maxEdge, difference = 0, dragging = false }) => {
+      ) => (_state = {}) => {
+        var {
+          minEdge,
+          maxEdge,
+          difference = 0,
+          dragging = false,
+          dragType
+        } = _state;
+
         var state = {
           difference,
           dragging,
           minEdge: minEdge !== undefined ? minEdge : _minEdge,
-          maxEdge: maxEdge !== undefined ? maxEdge : _maxEdge
+          maxEdge: maxEdge !== undefined ? maxEdge : _maxEdge,
+          dragType: dragType !== undefined ? dragType : _dragType
         };
 
         if (state.maxEdge > xScale.range()[1]) {
@@ -132,15 +142,16 @@ var enhance = compose(
       var { x } = cursorPoint(this.svg, e.clientX, e.clientY);
 
       var state = {
-        dragging: x
+        dragging: true,
+        dragType: x
       };
 
-      if (side === 'minEdge' || side === 'maxEdge') state.dragging = side;
+      if (side === 'minEdge' || side === 'maxEdge') state.dragType = side;
 
       if (side === 'new') {
         state.minEdge = x;
         state.maxEdge = x;
-        state.dragging = 'minEdge';
+        state.dragType = 'minEdge';
       }
 
       state.difference =
@@ -152,6 +163,7 @@ var enhance = compose(
       minEdge,
       maxEdge,
       dragging,
+      dragType,
       difference,
       cursorPoint,
       setState
@@ -165,27 +177,28 @@ var enhance = compose(
         minEdge,
         maxEdge,
         difference,
+        dragType,
         dragging
       };
 
-      if (typeof dragging === 'number') {
+      if (typeof dragType === 'number') {
         // We need to store the difference to substract it on further calls.
-        state.difference = dragging - x;
+        state.difference = dragType - x;
         state.minEdge = minEdge - (state.difference - difference);
         state.maxEdge = maxEdge - (state.difference - difference);
       } else {
-        // Store the new dragging value
-        state[dragging] = x;
+        // Store the new dragType value
+        state[dragType] = x;
 
-        if (dragging === 'maxEdge' && x <= minEdge) {
+        if (dragType === 'maxEdge' && x <= minEdge) {
           state.minEdge = maxEdge;
           state.maxEdge = minEdge;
-          state.dragging = 'minEdge';
+          state.dragType = 'minEdge';
         }
-        if (dragging === 'minEdge' && x >= maxEdge) {
+        if (dragType === 'minEdge' && x >= maxEdge) {
           state.minEdge = maxEdge;
           state.maxEdge = minEdge;
-          state.dragging = 'maxEdge';
+          state.dragType = 'maxEdge';
         }
       }
       // Flip max and min if their difference is smaller than zero.
@@ -197,7 +210,9 @@ var enhance = compose(
 
       setState(state);
     },
-    onMouseUp: ({ setState }) => setState
+    onMouseUp: ({ setState }) => () => {
+      setState({ dragging: false, difference: 0 });
+    }
   }),
   toClass,
   pure

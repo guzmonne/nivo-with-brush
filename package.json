@@ -10,6 +10,7 @@
     "@nivo/core": "^0.33.0",
     "@nivo/legends": "^0.33.0",
     "@nivo/line": "^0.33.0",
+    "@tweenjs/tween.js": "^17.1.1",
     "d3": "^4.12.2",
     "lodash": "^4.17.4",
     "lodash-es": "^4.17.4",

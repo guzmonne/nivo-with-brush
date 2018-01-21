@@ -23,14 +23,8 @@ class App extends Component {
             legendOffset: -40,
             legendPosition: 'center'
           }}
-          dotSize={2}
-          dotColor="inherit:darker(0.3)"
-          dotBorderWidth={0.5}
-          dotBorderColor="#ffffff"
-          enableDotLabel={false}
-          dotLabel="y"
-          dotLabelYOffset={-12}
-          animate={true}
+          enableDots={false}
+          animate={false}
           motionStiffness={90}
           motionDamping={15}
           axisBottom={{

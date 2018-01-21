@@ -11,6 +11,7 @@ import withStateHandlers from 'recompose/withStateHandlers';
 import withPropsOnChange from 'recompose/withPropsOnChange';
 import { scaleQuantize } from 'd3-scale';
 import { TICK_WIDTH, DEBOUNCE, POINTS_PER_WIDTH } from './constants.js';
+import throttle from 'lodash/throttle.js';
 
 var LineChart = ({
   axisBottom = {},
@@ -68,22 +69,15 @@ var enhance = compose(
       .range(xRange)
   })),
   withHandlers({
-    throttledUpdateValidRange: ({ updateValidRange }) => (min, max) => {
-      if (this.timeout) clearTimeout(this.timeout);
-      this.timeout = setTimeout(() => {
-        updateValidRange(min, max);
-      }, DEBOUNCE);
+    update: ({ updateValidRange }) => () => {
+      updateValidRange(this.minEdge, this.maxEdge);
     }
   }),
   withHandlers({
-    onBrush: ({ throttledUpdateValidRange, invertScale, xRange, data }) => (
-      minEdge,
-      maxEdge
-    ) => {
-      throttledUpdateValidRange(
-        indexOf(xRange, invertScale(minEdge)),
-        indexOf(xRange, invertScale(maxEdge))
-      );
+    onBrush: ({ update, invertScale, xRange, data }) => (minEdge, maxEdge) => {
+      this.minEdge = indexOf(xRange, invertScale(minEdge));
+      this.maxEdge = indexOf(xRange, invertScale(maxEdge));
+      requestAnimationFrame(update);
     }
   }),
   withPropsOnChange(['innerWidth'], ({ innerWidth }) => ({
@@ -95,22 +89,19 @@ var enhance = compose(
       ...{ data: d.data.slice(min, max) }
     }))
   })),
-  withPropsOnChange(
-    ['visibleData', 'maxPoints'],
-    ({ visibleData, maxPoints }) => ({
-      drawData: visibleData.map(d => {
-        if (d.data.length < maxPoints) return d;
+  withPropsOnChange(['visibleData'], ({ visibleData, maxPoints }) => ({
+    drawData: visibleData.map(d => {
+      if (d.data.length < maxPoints) return d;
 
-        var filterEvery = Math.ceil(d.data.length / maxPoints);
+      var filterEvery = Math.ceil(d.data.length / maxPoints);
 
-        return {
-          ...d,
-          ...{ data: d.data.filter((_, i) => i % filterEvery === 0) }
-        };
-      })
+      return {
+        ...d,
+        ...{ data: d.data.filter((_, i) => i % filterEvery === 0) }
+      };
     })
-  ),
-  withPropsOnChange(['data', 'maxPoints'], ({ data, maxPoints }) => ({
+  })),
+  withPropsOnChange(['data'], ({ data, maxPoints }) => ({
     brushData: data.map(d => {
       if (d.data.length < maxPoints) return d;
 
