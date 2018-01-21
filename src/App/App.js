@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ResponsiveLineChart as LineChart } from './ResponsiveLineChart/';
+import { ResponsiveLineChart as LineChart } from './LineChart/';
 import stocks from './stock.json';
 
 stocks.forEach(stock => (stock.data = stock.data.reverse()));
