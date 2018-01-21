@@ -5,7 +5,6 @@ import withStateHandlers from 'recompose/withStateHandlers';
 import withHandlers from 'recompose/withHandlers.js';
 import toClass from 'recompose/toClass.js';
 import { PADDING } from '../constants.js';
-import { scaleQuantize } from 'd3-scale';
 
 var Brush = ({
   width,
@@ -17,61 +16,64 @@ var Brush = ({
   onMouseUp
 }) => {
   return (
-    <svg
-      ref={c => (this.svg = c)}
-      width={width}
-      height={height}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
-    >
-      <rect
-        x={0}
-        y={0}
-        width={width}
+    <g transform={`translate(${-1 * PADDING})`}>
+      <svg
+        ref={c => (this.svg = c)}
+        width={width + 4 * PADDING}
         height={height}
-        style={{
-          opacity: 0.2,
-          fill: 'transparent'
-        }}
-        onMouseDown={onMouseDown('new')}
-      />
-      <rect
-        x={minEdge}
-        y={0}
-        width={maxEdge - minEdge}
-        height={height}
-        style={{
-          opacity: 0.3,
-          fill: 'black'
-        }}
-        onMouseDown={onMouseDown('both')}
-      />
-      <rect
-        x={minEdge}
-        y={0}
-        width={PADDING}
-        height={height}
-        style={{
-          opacity: 0.5,
-          fill: 'black',
-          cursor: 'w-resize'
-        }}
-        onMouseDown={onMouseDown('minEdge')}
-      />
-      <rect
-        x={maxEdge - PADDING}
-        y={0}
-        width={PADDING}
-        height={height}
-        style={{
-          opacity: 0.5,
-          fill: 'black',
-          cursor: 'e-resize'
-        }}
-        onMouseDown={onMouseDown('maxEdge')}
-      />
-    </svg>
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+      >
+        <rect
+          x={0}
+          y={0}
+          width={width}
+          height={height}
+          style={{
+            opacity: 0.2,
+            fill: 'transparent'
+          }}
+          onMouseDown={onMouseDown('new')}
+        />
+        <rect
+          x={PADDING + minEdge}
+          y={0}
+          width={maxEdge - minEdge}
+          height={height}
+          style={{
+            opacity: 0.3,
+            fill: 'black',
+            cursor: 'col-resize'
+          }}
+          onMouseDown={onMouseDown('both')}
+        />
+        <rect
+          x={minEdge}
+          y={0}
+          width={2 * PADDING}
+          height={height}
+          style={{
+            opacity: 0,
+            fill: 'black',
+            cursor: 'ew-resize'
+          }}
+          onMouseDown={onMouseDown('minEdge')}
+        />
+        <rect
+          x={maxEdge}
+          y={0}
+          width={2 * PADDING}
+          height={height}
+          style={{
+            opacity: 0,
+            fill: 'black',
+            cursor: 'ew-resize'
+          }}
+          onMouseDown={onMouseDown('maxEdge')}
+        />
+      </svg>
+    </g>
   );
 };
 
@@ -90,7 +92,7 @@ var enhance = compose(
     {
       setState: (
         { minEdge: _minEdge, maxEdge: _maxEdge, dragging },
-        { xScale }
+        { xScale, onBrush }
       ) => ({ minEdge, maxEdge, difference = 0, dragging = false }) => {
         var state = {
           difference,
@@ -109,6 +111,9 @@ var enhance = compose(
           state.maxEdge = _maxEdge;
         }
 
+        if (state.minEdge !== _minEdge || state.maxEdge !== _maxEdge)
+          onBrush(state.minEdge, state.maxEdge);
+
         return state;
       }
     }
@@ -126,15 +131,20 @@ var enhance = compose(
     onMouseDown: ({ cursorPoint, setState }) => side => e => {
       var { x } = cursorPoint(this.svg, e.clientX, e.clientY);
 
-      var state = { dragging: x };
+      var state = {
+        dragging: x
+      };
 
       if (side === 'minEdge' || side === 'maxEdge') state.dragging = side;
 
       if (side === 'new') {
-        state.minEdge = x;
-        state.maxEdge = x;
+        state.minEdge = x - PADDING;
+        state.maxEdge = x - PADDING;
         state.dragging = 'minEdge';
       }
+
+      state.difference =
+        side === 'both' || side === 'new' ? 0 : state[side] - x;
 
       return setState(state);
     },

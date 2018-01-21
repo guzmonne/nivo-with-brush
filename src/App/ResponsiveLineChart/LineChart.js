@@ -1,21 +1,26 @@
 import React from 'react';
+import uniq from 'lodash/uniq.js';
+import indexOf from 'lodash/indexOf.js';
+import throttle from 'lodash/throttle.js';
 import { Line } from '@nivo/line';
 import LineWithBrush from './LineWithBrush.js';
-import uniq from 'lodash/uniq.js';
 import compose from 'recompose/compose';
 import pure from 'recompose/pure';
+import withHandlers from 'recompose/withHandlers';
 import withStateHandlers from 'recompose/withStateHandlers';
 import withPropsOnChange from 'recompose/withPropsOnChange';
+import { scaleQuantize } from 'd3-scale';
 import { TICK_WIDTH } from './constants.js';
 
 var LineChart = ({
-  width,
-  height,
-  drawData,
-  brushData,
-  tickValues,
   axisBottom = {},
+  brushData,
   brushOverrides,
+  drawData,
+  height,
+  onBrush,
+  tickValues,
+  width,
   ...rest
 }) => (
   <div className="LineChart">
@@ -34,6 +39,7 @@ var LineChart = ({
       width={width}
       height={Math.round(height * 0.2)}
       data={brushData}
+      onBrush={onBrush}
     />
   </div>
 );
@@ -45,17 +51,39 @@ var enhance = compose(
       max: initialMax || Math.max(data.map(d => d.data.length)) - 1
     }),
     {
-      updateValidRange: ({ min, max }) => (newMin, newMax) => ({
-        min: newMin >= 0 ? newMin : min,
-        max: newMax >= 0 ? newMax : max
-      })
+      updateValidRange: () => (min, max) => ({ min, max })
     }
   ),
+  withPropsOnChange(['data'], ({ data }) => ({
+    xRange: uniq(
+      data.reduce((acc, d) => acc.concat(d.data.map(({ x }) => x)), [])
+    )
+  })),
   withPropsOnChange(['width', 'margin'], ({ width, margin }) => ({
     innerWidth: width - (margin.left || 0) - (margin.right || 0)
   })),
+  withPropsOnChange(['innerWidth', 'xRange'], ({ innerWidth, xRange }) => ({
+    invertScale: scaleQuantize()
+      .domain([0, innerWidth])
+      .range(xRange)
+  })),
+  withHandlers({
+    throttledUpdateValidRange: ({ updateValidRange }) =>
+      throttle(updateValidRange, 2000, { leading: false, trailing: true })
+  }),
+  withHandlers({
+    onBrush: ({ throttledUpdateValidRange, invertScale, xRange, data }) => (
+      minEdge,
+      maxEdge
+    ) => {
+      throttledUpdateValidRange(
+        indexOf(xRange, invertScale(minEdge)),
+        indexOf(xRange, invertScale(maxEdge))
+      );
+    }
+  }),
   withPropsOnChange(['innerWidth'], ({ innerWidth }) => ({
-    maxPoints: Math.round(innerWidth / 2.5)
+    maxPoints: Math.round(innerWidth / 4)
   })),
   withPropsOnChange(['data', 'min', 'max'], ({ data, min, max }) => ({
     visibleData: data.map(d => ({

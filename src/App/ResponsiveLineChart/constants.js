@@ -5,4 +5,4 @@ export var INDEX_OFFSET = 8350;
 // Ancho de un tick con la fecha
 export var TICK_WIDTH = 30;
 // Tamaño de padding del brush.
-export var PADDING = 10;
+export var PADDING = 25;
