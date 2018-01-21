@@ -1,6 +1,6 @@
 import React from 'react';
 import { Line } from '@nivo/line';
-import LineWithBrush from './Line.js';
+import LineWithBrush from './LineWithBrush.js';
 import uniq from 'lodash/uniq.js';
 import compose from 'recompose/compose';
 import pure from 'recompose/pure';
