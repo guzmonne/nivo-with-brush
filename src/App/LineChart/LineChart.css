@@ -3,10 +3,10 @@
   width: 100%;
 }
 
-.LineChart > .MainChart {
+.LineChart > .Main {
   height: 80%;
 }
 
-.LineChart > .BrushChart {
+.LineChart > .Brush {
   height: 20%;
 }

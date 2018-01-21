@@ -1,28 +1,132 @@
-import './LineChart.css';
 import React from 'react';
-import T from 'prop-types';
-import { Line } from '@nivo/line';
-import ResponsiveWrapper from './ResponsiveWrapper/';
-import BrushChart from './BrushChart/';
-import { ILineChart } from './types.js';
 import uniq from 'lodash/uniq.js';
-import { MARGIN, MAX_ITEMS, INDEX_OFFSET, TICK_WIDTH } from './constants.js';
+import indexOf from 'lodash/indexOf.js';
+import { Line } from '@nivo/line';
+import LineWithBrush from './LineWithBrush.js';
+import lifecycle from 'recompose/lifecycle.js';
+import compose from 'recompose/compose';
+import pure from 'recompose/pure';
+import withHandlers from 'recompose/withHandlers';
+import withStateHandlers from 'recompose/withStateHandlers';
+import withPropsOnChange from 'recompose/withPropsOnChange';
+import { scaleQuantize } from 'd3-scale';
+import { TICK_WIDTH } from './constants.js';
 
-class LineChart extends React.Component {
-  constructor(props) {
-    super(props);
+var LineChart = ({
+  axisBottom = {},
+  brushData,
+  brushOverrides,
+  drawData,
+  height,
+  onBrush,
+  tickValues,
+  width,
+  ...rest
+}) => (
+  <div className="LineChart">
+    <Line
+      {...rest}
+      width={width}
+      height={Math.round(height * 0.8)}
+      data={drawData}
+      axisBottom={{
+        ...axisBottom,
+        ...{ tickValues }
+      }}
+    />
+    <LineWithBrush
+      {...{ ...rest, ...brushOverrides }}
+      width={width}
+      height={Math.round(height * 0.2)}
+      data={brushData}
+      onBrush={onBrush}
+    />
+  </div>
+);
 
-    this.state = {
-      min: INDEX_OFFSET,
-      max: INDEX_OFFSET + MAX_ITEMS
-    };
-  }
+var enhance = compose(
+  withStateHandlers(
+    ({ initialMin, initialMax, data }) => ({
+      min: initialMin || 0,
+      max: initialMax || Math.max(data.map(d => d.data.length)) - 1
+    }),
+    {
+      updateValidRange: () => (min, max) => ({ min, max })
+    }
+  ),
+  withPropsOnChange(['data'], ({ data }) => ({
+    xRange: uniq(
+      data.reduce((acc, d) => acc.concat(d.data.map(({ x }) => x)), [])
+    )
+  })),
+  withPropsOnChange(['width', 'margin'], ({ width, margin }) => ({
+    innerWidth: width - (margin.left || 0) - (margin.right || 0)
+  })),
+  withPropsOnChange(['innerWidth', 'xRange'], ({ innerWidth, xRange }) => ({
+    invertScale: scaleQuantize()
+      .domain([0, innerWidth])
+      .range(xRange)
+  })),
+  withHandlers({
+    throttledUpdateValidRange: ({ updateValidRange }) => (min, max) => {
+      if (this.timeout) clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
+        updateValidRange(min, max);
+      }, 1000);
+    }
+  }),
+  withHandlers({
+    onBrush: ({ throttledUpdateValidRange, invertScale, xRange, data }) => (
+      minEdge,
+      maxEdge
+    ) => {
+      throttledUpdateValidRange(
+        indexOf(xRange, invertScale(minEdge)),
+        indexOf(xRange, invertScale(maxEdge))
+      );
+    }
+  }),
+  withPropsOnChange(['innerWidth'], ({ innerWidth }) => ({
+    maxPoints: Math.round(innerWidth / 4)
+  })),
+  withPropsOnChange(['data', 'min', 'max'], ({ data, min, max }) => ({
+    visibleData: data.map(d => ({
+      ...d,
+      ...{ data: d.data.slice(min, max) }
+    }))
+  })),
+  withPropsOnChange(
+    ['visibleData', 'maxPoints'],
+    ({ visibleData, maxPoints }) => ({
+      drawData: visibleData.map(d => {
+        if (d.data.length < maxPoints) return d;
 
-  calculateTickValues = (data, innerWidth) => {
+        var filterEvery = Math.ceil(d.data.length / maxPoints);
+
+        return {
+          ...d,
+          ...{ data: d.data.filter((_, i) => i % filterEvery === 0) }
+        };
+      })
+    })
+  ),
+  withPropsOnChange(['data', 'maxPoints'], ({ data, maxPoints }) => ({
+    brushData: data.map(d => {
+      if (d.data.length < maxPoints) return d;
+
+      var filterEvery = Math.ceil(d.data.length / maxPoints);
+
+      return {
+        ...d,
+        ...{ data: d.data.filter((_, i) => i % filterEvery === 0) }
+      };
+    })
+  })),
+  withPropsOnChange(['drawData', 'innerWidth'], ({ drawData, innerWidth }) => {
     var xValues = uniq(
-      data
-        .map(stock => stock.data.map(value => value.x))
-        .reduce((acc, array) => acc.concat(array), [])
+      drawData
+        .map(d => d.data.map(value => value.x))
+        .reduce((acc, data) => acc.concat(data), [])
     );
 
     var gridWidth = Math.ceil(innerWidth / xValues.length);
@@ -30,83 +134,17 @@ class LineChart extends React.Component {
 
     var result = xValues.filter((_, i) => i % tickDistance === 0);
 
-    return result;
-  };
+    return { tickValues: result };
+  }),
+  lifecycle({
+    componentDidMount() {
+      if (this.timeout) clearTimeout(this.timeout);
+    }
+  }),
+  pure
+);
 
-  updateVisibleSelection = visibleData => {
-    //console.log('something');
-    //this.setState({ visibleData });
-  };
+var EnhancedLineChart = enhance(LineChart);
+EnhancedLineChart.displayName = 'enhanced(LineChart)';
 
-  visible = data => {
-    var { min, max } = this.state;
-    return data.map(d =>
-      Object.assign({}, d, {
-        data: d.data.slice(min, max)
-      })
-    );
-  };
-
-  render() {
-    var {
-      data,
-      axisBottom,
-      withInnerDimensions,
-      brushOverrides,
-      ...rest
-    } = this.props;
-
-    var visibleData = this.visible(data);
-
-    var margin = Object.assign({}, MARGIN, this.props.margin);
-
-    var brushProps = { ...rest, ...brushOverrides };
-
-    return (
-      <div className="LineChart">
-        <div className="MainChart">
-          <ResponsiveWrapper>
-            {({ width, height }) => {
-              return (
-                <Line
-                  {...rest}
-                  width={width}
-                  height={height}
-                  data={visibleData}
-                  margin={margin}
-                  axisBottom={{
-                    ...axisBottom,
-                    ...{
-                      tickValues: this.calculateTickValues(
-                        visibleData,
-                        width - margin.left - margin.right
-                      )
-                    }
-                  }}
-                />
-              );
-            }}
-          </ResponsiveWrapper>
-        </div>
-        <div className="BrushChart">
-          <BrushChart
-            data={data}
-            margin={margin}
-            onBrush={this.updateVisibleSelection}
-            {...brushProps}
-          />
-        </div>
-      </div>
-    );
-  }
-}
-
-LineChart.propTypes = Object.assign({}, ILineChart, {
-  tickEvery: T.number
-});
-
-LineChart.defaultProps = {
-  margin: MARGIN
-};
-
-export default LineChart;
+export default EnhancedLineChart;

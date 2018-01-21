@@ -1,3 +1,6 @@
-import LineChart from './LineChart.js';
+import './LineChart.css';
 
-export default LineChart;
+import LineChart from './LineChart.js';
+import ResponsiveLineChart from './ResponsiveLineChart.js';
+
+export { LineChart, ResponsiveLineChart };
