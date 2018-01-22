@@ -8,7 +8,7 @@ import defaultProps from 'recompose/defaultProps';
 import { curveFromProp } from '@nivo/core';
 import { getInheritedColorGenerator } from '@nivo/core';
 import { withTheme, withColors, withDimensions, withMotion } from '@nivo/core';
-import { Container, SvgWrapper } from '@nivo/core';
+import { Container } from '@nivo/core';
 import {
   getScales,
   getStackedScales,
@@ -24,6 +24,7 @@ import LineSlices from '@nivo/line/lib/LineSlices';
 import LineDots from '@nivo/line/lib/LineDots';
 import { LinePropTypes, LineDefaultProps } from '@nivo/line/lib/props';
 import Brush from './Brush/';
+import SvgWrapper from './SvgWrapper.js';
 
 const Line = ({
   // custom

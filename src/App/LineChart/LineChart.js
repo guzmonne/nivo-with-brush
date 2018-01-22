@@ -58,9 +58,15 @@ var enhance = compose(
       data.reduce((acc, d) => acc.concat(d.data.map(({ x }) => x)), [])
     )
   })),
-  withPropsOnChange(['width', 'margin'], ({ width, margin }) => ({
-    innerWidth: width - (margin.left || 0) - (margin.right || 0)
-  })),
+  withPropsOnChange(['width', 'margin'], ({ width, margin }) => {
+    var result = {
+      innerWidth: width - (margin.left || 0) - (margin.right || 0)
+    };
+
+    console.log(result);
+
+    return result;
+  }),
   withPropsOnChange(['innerWidth', 'xRange'], ({ innerWidth, xRange }) => ({
     invertScale: scaleQuantize()
       .domain([0, innerWidth])

@@ -3,12 +3,12 @@ import compose from 'recompose/compose';
 import pure from 'recompose/pure';
 import withStateHandlers from 'recompose/withStateHandlers';
 import withHandlers from 'recompose/withHandlers.js';
-import toClass from 'recompose/toClass.js';
 import { PADDING } from '../constants.js';
 
 var Brush = ({
   width,
   height,
+  margin,
   minEdge,
   maxEdge,
   onMouseDown,
@@ -16,63 +16,52 @@ var Brush = ({
   onMouseUp
 }) => {
   return (
-    <g transform={`translate(${-1 * PADDING})`}>
-      <svg
-        ref={c => (this.svg = c)}
-        width={width + 4 * PADDING}
+    <g onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}>
+      <rect
+        x={-1 * margin.left}
+        y={0}
+        width={width + margin.left + margin.right}
         height={height}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-      >
-        <rect
-          x={0}
-          y={0}
-          width={width}
-          height={height}
-          style={{
-            opacity: 0.2,
-            fill: 'transparent'
-          }}
-          onMouseDown={onMouseDown('new')}
-        />
-        <rect
-          x={PADDING + minEdge}
-          y={0}
-          width={maxEdge - minEdge}
-          height={height}
-          style={{
-            opacity: 0.3,
-            fill: 'black',
-            cursor: 'col-resize'
-          }}
-          onMouseDown={onMouseDown('both')}
-        />
-        <rect
-          x={minEdge - PADDING}
-          y={0}
-          width={2 * PADDING}
-          height={height}
-          style={{
-            opacity: 0.1,
-            fill: 'black',
-            cursor: 'ew-resize'
-          }}
-          onMouseDown={onMouseDown('minEdge')}
-        />
-        <rect
-          x={maxEdge + PADDING}
-          y={0}
-          width={2 * PADDING}
-          height={height}
-          style={{
-            opacity: 0.1,
-            fill: 'black',
-            cursor: 'ew-resize'
-          }}
-          onMouseDown={onMouseDown('maxEdge')}
-        />
-      </svg>
+        style={{
+          opacity: 0.2,
+          fill: 'transparent'
+        }}
+        onMouseDown={onMouseDown('new')}
+      />
+      <rect
+        x={minEdge - 2 * PADDING}
+        y={0}
+        width={2 * PADDING}
+        height={height}
+        style={{
+          opacity: 0,
+          cursor: 'ew-resize'
+        }}
+        onMouseDown={onMouseDown('minEdge')}
+      />
+      <rect
+        x={maxEdge}
+        y={0}
+        width={2 * PADDING}
+        height={height}
+        style={{
+          opacity: 0,
+          cursor: 'ew-resize'
+        }}
+        onMouseDown={onMouseDown('maxEdge')}
+      />
+      <rect
+        x={minEdge}
+        y={0}
+        width={maxEdge - minEdge}
+        height={height}
+        style={{
+          opacity: 0.3,
+          fill: 'black',
+          cursor: 'col-resize'
+        }}
+        onMouseDown={onMouseDown('both')}
+      />
     </g>
   );
 };
@@ -93,7 +82,7 @@ var enhance = compose(
     {
       setState: (
         { minEdge: _minEdge, maxEdge: _maxEdge, dragType: _dragType, dragging },
-        { xScale, onBrush }
+        { width, onBrush }
       ) => (_state = {}) => {
         var {
           minEdge,
@@ -111,8 +100,8 @@ var enhance = compose(
           dragType: dragType !== undefined ? dragType : _dragType
         };
 
-        if (state.maxEdge > xScale.range()[1]) {
-          state.maxEdge = xScale.range()[1];
+        if (state.maxEdge > width) {
+          state.maxEdge = width;
           state.minEdge = _minEdge;
         }
 
@@ -129,33 +118,48 @@ var enhance = compose(
     }
   ),
   withHandlers({
-    cursorPoint: () => (svg, clientX, clientY) => {
+    cursorPoint: ({ getSvgRef, margin }) => (clientX, clientY) => {
+      var svg = getSvgRef();
       var pt = svg.createSVGPoint();
-      pt.x = clientX;
+      pt.x = clientX - margin.left;
       pt.y = clientY;
       var result = pt.matrixTransform(svg.getScreenCTM().inverse());
       return result;
     }
   }),
   withHandlers({
-    onMouseDown: ({ cursorPoint, setState }) => side => e => {
-      var { x } = cursorPoint(this.svg, e.clientX, e.clientY);
+    onMouseDown: ({
+      cursorPoint,
+      setState,
+      minEdge,
+      maxEdge,
+      width
+    }) => side => e => {
+      var { x } = cursorPoint(e.clientX, e.clientY);
 
       var state = {
-        dragging: true,
-        dragType: x
+        dragging: true
       };
 
-      if (side === 'minEdge' || side === 'maxEdge') state.dragType = side;
+      if (side === 'both') {
+        state.dragType = 'both';
+        this.center = maxEdge - minEdge;
+        this.delta = Math.round(Math.abs(x - this.center));
+      }
+
+      if (side === 'minEdge' || side === 'maxEdge') {
+        state.dragType = side;
+        this.delta = Math.round(side === 'minEdge' ? x - minEdge : x - maxEdge);
+      }
 
       if (side === 'new') {
+        if (x < 0) return;
+        if (x > width) return;
         state.minEdge = x;
         state.maxEdge = x;
         state.dragType = 'minEdge';
+        this.delta = 0;
       }
-
-      state.difference =
-        side === 'both' || side === 'new' ? 0 : state[side] - x;
 
       return setState(state);
     },
@@ -171,7 +175,7 @@ var enhance = compose(
       // Do nothing if not dragging.
       if (dragging === false) return;
 
-      var { x } = cursorPoint(this.svg, e.clientX, e.clientY);
+      var { x } = cursorPoint(e.clientX, e.clientY);
 
       var state = {
         minEdge,
@@ -181,24 +185,25 @@ var enhance = compose(
         dragging
       };
 
-      if (typeof dragType === 'number') {
+      if (dragType === 'both') {
         // We need to store the difference to substract it on further calls.
-        state.difference = dragType - x;
+        state.difference = this.center - Math.round(x - this.delta);
         state.minEdge = minEdge - (state.difference - difference);
         state.maxEdge = maxEdge - (state.difference - difference);
       } else {
-        // Store the new dragType value
-        state[dragType] = x;
+        var newEdge = Math.round(x - this.delta);
 
-        if (dragType === 'maxEdge' && x <= minEdge) {
-          state.minEdge = maxEdge;
+        if (dragType === 'maxEdge' && newEdge <= minEdge) {
+          state.minEdge = newEdge;
           state.maxEdge = minEdge;
           state.dragType = 'minEdge';
-        }
-        if (dragType === 'minEdge' && x >= maxEdge) {
+        } else if (dragType === 'minEdge' && newEdge >= maxEdge) {
           state.minEdge = maxEdge;
-          state.maxEdge = minEdge;
+          state.maxEdge = newEdge;
           state.dragType = 'maxEdge';
+        } else {
+          // Store the new dragType value
+          state[dragType] = newEdge;
         }
       }
       // Flip max and min if their difference is smaller than zero.
@@ -214,7 +219,6 @@ var enhance = compose(
       setState({ dragging: false, difference: 0 });
     }
   }),
-  toClass,
   pure
 );
 
