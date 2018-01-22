@@ -8,8 +8,8 @@ import pure from 'recompose/pure';
 import withHandlers from 'recompose/withHandlers';
 import withStateHandlers from 'recompose/withStateHandlers';
 import withPropsOnChange from 'recompose/withPropsOnChange';
-import { scaleQuantize, scalePoint } from 'd3-scale';
-import { TICK_WIDTH, POINTS_PER_WIDTH, PADDING } from './constants.js';
+import { scaleQuantize } from 'd3-scale';
+import { TICK_WIDTH, POINTS_PER_WIDTH } from './constants.js';
 
 var LineChart = ({
   axisBottom = {},

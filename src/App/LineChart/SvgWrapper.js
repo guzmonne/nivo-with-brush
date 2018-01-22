@@ -11,7 +11,6 @@ import PropTypes from 'prop-types';
 import { Defs } from '@nivo/core/lib/components/defs/';
 import compose from 'recompose/compose';
 import pure from 'recompose/pure';
-import withStateHandlers from 'recompose/withStateHandlers';
 import withHandlers from 'recompose/withHandlers.js';
 import toClass from 'recompose/toClass.js';
 
