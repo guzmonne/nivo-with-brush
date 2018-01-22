@@ -58,15 +58,9 @@ var enhance = compose(
       data.reduce((acc, d) => acc.concat(d.data.map(({ x }) => x)), [])
     )
   })),
-  withPropsOnChange(['width', 'margin'], ({ width, margin }) => {
-    var result = {
-      innerWidth: width - (margin.left || 0) - (margin.right || 0)
-    };
-
-    console.log(result);
-
-    return result;
-  }),
+  withPropsOnChange(['width', 'margin'], ({ width, margin }) => ({
+    innerWidth: width - (margin.left || 0) - (margin.right || 0)
+  })),
   withPropsOnChange(['innerWidth', 'xRange'], ({ innerWidth, xRange }) => ({
     invertScale: scaleQuantize()
       .domain([0, innerWidth])
@@ -131,16 +125,19 @@ var enhance = compose(
   withPropsOnChange(['drawData', 'innerWidth'], ({ drawData, innerWidth }) => {
     var xValues = uniq(
       drawData
-        .map(d => d.data.map(value => value.x))
+        .map(d => d.data.map(({ x }) => x))
         .reduce((acc, data) => acc.concat(data), [])
     );
 
     var gridWidth = Math.ceil(innerWidth / xValues.length);
     var tickDistance = Math.floor(TICK_WIDTH / gridWidth);
 
-    var result = xValues.filter((_, i) => i % tickDistance === 0);
-
-    return { tickValues: result };
+    return {
+      tickValues:
+        tickDistance === 0
+          ? xValues
+          : xValues.filter((_, i) => i % tickDistance === 0)
+    };
   }),
   pure
 );
