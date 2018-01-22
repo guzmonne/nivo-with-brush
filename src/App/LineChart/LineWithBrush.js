@@ -28,7 +28,6 @@ import SvgWrapper from './SvgWrapper.js';
 
 const Line = ({
   // custom
-  data,
   onBrush,
   initialMinEdge,
   initialMaxEdge,
@@ -192,7 +191,6 @@ const Line = ({
           <Brush
             xScale={xScale}
             margin={margin}
-            data={data}
             width={width}
             height={height}
             onBrush={onBrush}
